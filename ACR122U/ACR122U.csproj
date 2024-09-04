@@ -15,10 +15,16 @@
     <PackageReleaseNotes>Initial version</PackageReleaseNotes>
     <PackageIcon>Logo.png</PackageIcon>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>GPL-3.0</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\Assets\Logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
