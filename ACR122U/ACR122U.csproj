@@ -12,11 +12,12 @@
     <PackageProjectUrl>https://github.com/FrApp42/ACR122U</PackageProjectUrl>
     <RepositoryUrl>https://github.com/FrApp42/ACR122U.git</RepositoryUrl>
     <PackageTags>ACR122U;NFC</PackageTags>
-    <PackageReleaseNotes>Initial version</PackageReleaseNotes>
+    <PackageReleaseNotes>Implement WriteBinary and MSTests</PackageReleaseNotes>
     <PackageIcon>Logo.png</PackageIcon>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>GPL-3.0</Copyright>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

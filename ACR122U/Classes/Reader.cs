@@ -169,20 +169,86 @@ namespace FrApp42.ACR122U
 
         private static bool IsSuccess(Response responses) => (responses.SW1 == (byte)SW1Code.Normal) && (responses.SW2 == 0x00);
 
+        [Obsolete("readBinary is deprecated, please use ReadBinary instead.")]
         public byte[] readBinary(Int32 block, Int32 lenght, byte[]? key = null)
+        {
+            return ReadBinary(block, lenght, key);
+        }
+
+        public byte[] ReadBinary(Int32 block, Int32 lenght, byte[]? key = null)
+        {
+            return ReadBinary(KeyLocation.Slot0, block, lenght, key);
+        }
+
+        public byte[] ReadBinary(KeyLocation slot, Int32 block, Int32 lenght, byte[]? key = null)
         {
             if (key == null)
             {
                 key = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
             }
             Card card = new Card(_cardContext, _deviceName);
-            card.LoadKey(KeyStructure.VolatileMemory, (byte)block, key);
-            card.Authenticate((byte)block);
-            byte[] result = card.ReadBinary((byte)0x00, (byte)block, (byte)lenght);
-
+            byte[] result = new byte[lenght];
 
             try
             {
+                //_cardReader = _cardContext.ConnectReader(_deviceName, SCardShareMode.Shared, SCardProtocol.Any);
+                if( card.LoadKey(KeyStructure.VolatileMemory, (byte)slot, key) && card.Authenticate((byte)block))
+                {
+                    result = card.ReadBinary(0x00, (byte)block, (byte)lenght);
+                }
+                
+                _cardReader.Disconnect(SCardReaderDisposition.Leave);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+
+            return result;
+        }
+
+
+        public bool WriteBinary(int block, byte[] data, byte[]? key = null)
+        {
+            return WriteBinary(KeyLocation.Slot0, block, data, key);
+        }
+
+        public bool WriteBinary(KeyLocation slot, int block, byte[] data, byte[]? key = null)
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            // Si la taille est inférieure à 16, on complète avec des 0x00
+            if (data.Length < 16)
+            {
+                var padded = new byte[16];
+                Array.Copy(data, padded, data.Length);
+                data = padded;
+            }
+            else if (data.Length > 16)
+            {
+                throw new ArgumentException("The data to be written must contain a maximum of 16 bytes.");
+            }
+
+            if (key == null)
+            {
+                key = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+            }
+
+
+            bool result = false;
+            try
+            {
+                Card card = new Card(_cardContext, _deviceName);
+                //byte sector = (byte)(block / 4);
+                if (card.LoadKey(KeyStructure.VolatileMemory, (byte)slot, key) && card.Authenticate((byte)block))
+                {
+                    // Écriture des données sur le badge (P1 = 0x00, P2 = block)
+                    result = card.UpdateBinary(0x00, (byte)block, data);
+                }
+
                 _cardReader.Disconnect(SCardReaderDisposition.Leave);
             }
             catch (Exception ex)

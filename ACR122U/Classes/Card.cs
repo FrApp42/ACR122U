@@ -99,6 +99,13 @@ namespace FrApp42.ACR122U
 
         #region Binary
 
+        /** Reads binary data from the card.
+         *
+         * @param P1  Most Significant Byte (msb) of the offset where to read.
+         * @param P2  Least Significant Byte (lsb) of the offset where to read.
+         * @param Le  Number of bytes to read.
+         * @return Data read from the card, or an empty array if the operation failed.
+         */
         public byte[] ReadBinary(byte P1, byte P2, int Le)
         {
             unchecked
@@ -137,14 +144,26 @@ namespace FrApp42.ACR122U
             }
         }
 
-        public bool UpdateBinary(byte msb, byte lsb, byte[] data)
+        /** Updates binary data on the card.
+         *
+         * @param P1  Most Significant Byte (msb) of the offset where to write.
+         * @param P2  Least Significant Byte (lsb of the offset where to write.
+         * @param data Data to write.
+         * @return true if the operation was successful, false otherwise.
+         */
+        public bool UpdateBinary(byte P1, byte P2, byte[] data)
         {
+            if (data == null || data.Length != 16)
+            {
+                throw new ArgumentException("Data must be exactly 16 bytes for MIFARE block write.");
+            }
+
             var updateBinaryCmd = new CommandApdu(IsoCase.Case3Short, SCardProtocol.Any)
             {
                 CLA = CUSTOM_CLA,
                 Instruction = InstructionCode.UpdateBinary,
-                P1 = msb,
-                P2 = lsb,
+                P1 = P1,
+                P2 = P2,
                 Data = data
             };
 
@@ -158,6 +177,11 @@ namespace FrApp42.ACR122U
         #endregion
 
         #region Block
+
+        /** Retrieves data stored in the card's data block.
+         *
+         * @return Data stored in the card's data block, or null if the operation failed.
+         */
         public byte[] GetData()
         {
             var getDataCmd = new CommandApdu(IsoCase.Case2Short, SCardProtocol.Any)
