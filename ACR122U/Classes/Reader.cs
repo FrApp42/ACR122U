@@ -189,14 +189,16 @@ namespace FrApp42.ACR122U
             Card card = new Card(_cardContext, _deviceName);
             byte[] result = new byte[lenght];
 
+            KeyType keyType = slot == KeyLocation.Slot1 ? KeyType.KeyB : KeyType.KeyA;
+
             try
             {
                 //_cardReader = _cardContext.ConnectReader(_deviceName, SCardShareMode.Shared, SCardProtocol.Any);
-                if( card.LoadKey(KeyStructure.VolatileMemory, (byte)slot, key) && card.Authenticate((byte)block))
+                if (card.LoadKey(KeyStructure.VolatileMemory, (byte)slot, key) && card.Authenticate((byte)block, keyType, (byte)slot))
                 {
                     result = card.ReadBinary(0x00, (byte)block, (byte)lenght);
                 }
-                
+
                 _cardReader.Disconnect(SCardReaderDisposition.Leave);
             }
             catch (Exception ex)
@@ -239,11 +241,13 @@ namespace FrApp42.ACR122U
 
 
             bool result = false;
+            KeyType keyType = slot == KeyLocation.Slot1 ? KeyType.KeyB : KeyType.KeyA;
+
             try
             {
                 Card card = new Card(_cardContext, _deviceName);
                 //byte sector = (byte)(block / 4);
-                if (card.LoadKey(KeyStructure.VolatileMemory, (byte)slot, key) && card.Authenticate((byte)block))
+                if (card.LoadKey(KeyStructure.VolatileMemory, (byte)slot, key) && card.Authenticate((byte)block, keyType, (byte)slot))
                 {
                     // Écriture des données sur le badge (P1 = 0x00, P2 = block)
                     result = card.UpdateBinary(0x00, (byte)block, data);
